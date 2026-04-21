@@ -40,7 +40,7 @@ function rv() {
 }
 
 function cleanForSpeech(text: string) {
-	return text.replace(/[¡¿]/g, "");
+	return text.replace(/[¡¿"'“”‘’*;]/g, "");
 }
 
 export function ChatContent({
