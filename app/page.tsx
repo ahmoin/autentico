@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChatContent } from "@/components/chat-content";
 import { CustomScenarioDialog } from "@/components/custom-scenario-dialog";
+import { DictionaryView } from "@/components/dictionary-view";
 import { ScenarioPicker } from "@/components/scenario-picker";
 import { SettingsSidebar } from "@/components/settings-sidebar";
 import {
@@ -12,11 +13,15 @@ import {
 	type Scenario,
 	type SettingsState,
 } from "@/lib/spanish-chat";
+import { getEntries } from "@/lib/dictionary";
 
 export default function Page() {
 	const [settings, setSettings] = useState<SettingsState>(DEFAULT_SETTINGS);
 	const [chatConfig, setChatConfig] = useState<ChatConfig | null>(null);
 	const [customOpen, setCustomOpen] = useState(false);
+	const [showDictionary, setShowDictionary] = useState(false);
+	const [dictionaryVersion, setDictionaryVersion] = useState(0);
+	const [dictionaryCount, setDictionaryCount] = useState(() => getEntries().length);
 
 	const updateSettings = (patch: Partial<SettingsState>) =>
 		setSettings((prev) => ({ ...prev, ...patch }));
@@ -40,6 +45,11 @@ export default function Page() {
 		);
 	};
 
+	const handleWordSaved = () => {
+		setDictionaryCount(getEntries().length);
+		setDictionaryVersion((v) => v + 1);
+	};
+
 	return (
 		<div className="flex h-svh overflow-hidden">
 			<div className="flex min-w-0 flex-1 flex-col overflow-hidden">
@@ -48,6 +58,7 @@ export default function Page() {
 						key={`${chatConfig.scenario.id}-${chatConfig.userRole}`}
 						config={chatConfig}
 						onBack={() => setChatConfig(null)}
+						onWordSaved={handleWordSaved}
 					/>
 				) : (
 					<ScenarioPicker
@@ -57,12 +68,26 @@ export default function Page() {
 				)}
 			</div>
 
-			<SettingsSidebar
-				settings={settings}
-				chatConfig={chatConfig}
-				onUpdate={updateSettings}
-				onRoleSwap={handleRoleSwap}
-			/>
+			{showDictionary ? (
+				<aside className="flex w-64 shrink-0 flex-col overflow-y-auto border-l">
+					<DictionaryView
+						onBack={() => {
+							setShowDictionary(false);
+							setDictionaryCount(getEntries().length);
+						}}
+						refreshKey={dictionaryVersion}
+					/>
+				</aside>
+			) : (
+				<SettingsSidebar
+					settings={settings}
+					chatConfig={chatConfig}
+					onUpdate={updateSettings}
+					onRoleSwap={handleRoleSwap}
+					onOpenDictionary={() => setShowDictionary(true)}
+					dictionaryCount={dictionaryCount}
+				/>
+			)}
 
 			<CustomScenarioDialog
 				open={customOpen}

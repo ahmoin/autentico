@@ -5,6 +5,7 @@ import { DefaultChatTransport } from "ai";
 import { ArrowLeftIcon, PlayIcon, SquareIcon } from "lucide-react";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { SelectionToolbar } from "@/components/selection-toolbar";
 import {
 	Conversation,
 	ConversationContent,
@@ -45,14 +46,17 @@ function cleanForSpeech(text: string) {
 export function ChatContent({
 	config,
 	onBack,
+	onWordSaved,
 }: {
 	config: ChatConfig;
 	onBack: () => void;
+	onWordSaved?: () => void;
 }) {
 	const [completion, setCompletion] = useState(0);
 	const [playingId, setPlayingId] = useState<string | null>(null);
 	const scoredMessages = useRef(new Set<string>());
 	const started = useRef(false);
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	const transport = useMemo(
 		() => new DefaultChatTransport({ api: "/api/chat", body: { config } }),
@@ -126,7 +130,7 @@ export function ChatContent({
 				: "text-muted-foreground";
 
 	return (
-		<div className="flex h-full flex-col">
+		<div ref={containerRef} className="flex h-full flex-col">
 			<div className="border-b px-6 py-2.5">
 				<div className="mb-2 flex items-center justify-between">
 					<div className="flex items-center gap-2">
@@ -236,6 +240,7 @@ export function ChatContent({
 					</PromptInput>
 				</div>
 			</div>
+			<SelectionToolbar containerRef={containerRef} onSaved={onWordSaved} />
 		</div>
 	);
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { BookOpenIcon } from "lucide-react";
 import { LabeledSlider } from "@/components/labeled-slider";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -21,17 +22,41 @@ export function SettingsSidebar({
 	chatConfig,
 	onUpdate,
 	onRoleSwap,
+	onOpenDictionary,
+	dictionaryCount,
 }: {
 	settings: SettingsState;
 	chatConfig: ChatConfig | null;
 	onUpdate: (patch: Partial<SettingsState>) => void;
 	onRoleSwap: () => void;
+	onOpenDictionary: () => void;
+	dictionaryCount: number;
 }) {
 	const applyPreset = (d: Difficulty) =>
 		onUpdate(settingsFromPreset(d, settings.aiStarts));
 
 	return (
 		<aside className="flex w-64 shrink-0 flex-col gap-5 overflow-y-auto border-l p-4">
+			<div className="flex items-center justify-between">
+				<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+					Settings
+				</p>
+				<Button
+					size="xs"
+					variant="ghost"
+					className="gap-1 text-xs"
+					onClick={onOpenDictionary}
+				>
+					<BookOpenIcon className="size-3" />
+					Dictionary
+					{dictionaryCount > 0 && (
+						<span className="rounded-full bg-primary px-1.5 py-px text-[10px] text-primary-foreground">
+							{dictionaryCount}
+						</span>
+					)}
+				</Button>
+			</div>
+
 			<div className="space-y-2">
 				<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 					Difficulty
