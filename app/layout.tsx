@@ -28,6 +28,7 @@ export default function RootLayout({
 			)}
 		>
 			<body>
+				<script src="https://code.responsivevoice.org/responsivevoice.js?key=XBEed9Ik"></script>
 				<ThemeProvider>{children}</ThemeProvider>
 			</body>
 		</html>

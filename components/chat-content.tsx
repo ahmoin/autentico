@@ -2,7 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, PlayIcon, SquareIcon } from "lucide-react";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -13,8 +13,10 @@ import {
 } from "@/components/ai-elements/conversation";
 import {
 	Message,
+	MessageAction,
 	MessageContent,
 	MessageResponse,
+	MessageToolbar,
 } from "@/components/ai-elements/message";
 import {
 	PromptInput,
@@ -30,6 +32,16 @@ import { Progress } from "@/components/ui/progress";
 import { type ChatConfig, extractScore } from "@/lib/spanish-chat";
 import { cn } from "@/lib/utils";
 
+declare const responsiveVoice: any;
+
+function rv() {
+	return typeof responsiveVoice !== "undefined" ? responsiveVoice : null;
+}
+
+function cleanForSpeech(text: string) {
+	return text.replace(/[¡¿]/g, "");
+}
+
 export function ChatContent({
 	config,
 	onBack,
@@ -38,6 +50,7 @@ export function ChatContent({
 	onBack: () => void;
 }) {
 	const [completion, setCompletion] = useState(0);
+	const [playingId, setPlayingId] = useState<string | null>(null);
 	const scoredMessages = useRef(new Set<string>());
 	const started = useRef(false);
 
@@ -48,6 +61,20 @@ export function ChatContent({
 
 	const { messages, status, stop, sendMessage } = useChat({ transport });
 	const isGenerating = status === "submitted" || status === "streaming";
+
+	const speak = useCallback((id: string, text: string) => {
+		rv()?.cancel();
+		setPlayingId(id);
+		rv()?.speak(cleanForSpeech(text), "Spanish Female", {
+			onend: () => setPlayingId((prev) => (prev === id ? null : prev)),
+			onerror: () => setPlayingId((prev) => (prev === id ? null : prev)),
+		});
+	}, []);
+
+	const stopSpeaking = useCallback(() => {
+		rv()?.cancel();
+		setPlayingId(null);
+	}, []);
 
 	useEffect(() => {
 		if (config.aiStarts && !started.current) {
@@ -66,13 +93,16 @@ export function ChatContent({
 			.filter((p) => p.type === "text")
 			.map((p) => p.text)
 			.join("");
-		const { score } = extractScore(text);
+		const { score, cleanText } = extractScore(text);
 		setCompletion((prev) => Math.min(100, Math.max(0, prev + score)));
-	}, [status, messages]);
+		speak(last.id, cleanText);
+	}, [status, messages, speak]);
 
 	const handleSubmit = useCallback(
 		async (msg: PromptInputMessage, _e: FormEvent<HTMLFormElement>) => {
 			if (!msg.text.trim()) return;
+			rv()?.cancel();
+			rv()?.speak(cleanForSpeech(msg.text), "Spanish Female");
 			await sendMessage({ text: msg.text });
 		},
 		[sendMessage],
@@ -140,6 +170,7 @@ export function ChatContent({
 								.map((p) => p.text)
 								.join("");
 							const { cleanText } = extractScore(rawText);
+							const isPlaying = playingId === message.id;
 							return (
 								<Message key={message.id} from={message.role}>
 									<MessageContent
@@ -155,6 +186,27 @@ export function ChatContent({
 											cleanText
 										)}
 									</MessageContent>
+									<MessageToolbar
+										className={cn(
+											"mt-1",
+											message.role === "user" && "justify-end",
+										)}
+									>
+										<MessageAction
+											tooltip={isPlaying ? "Stop" : "Play"}
+											onClick={() =>
+												isPlaying
+													? stopSpeaking()
+													: speak(message.id, cleanText)
+											}
+										>
+											{isPlaying ? (
+												<SquareIcon className="size-3" />
+											) : (
+												<PlayIcon className="size-3" />
+											)}
+										</MessageAction>
+									</MessageToolbar>
 								</Message>
 							);
 						})
