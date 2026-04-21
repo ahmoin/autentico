@@ -5,7 +5,6 @@ import { DefaultChatTransport } from "ai";
 import { ArrowLeftIcon, PlayIcon, SquareIcon } from "lucide-react";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { SelectionToolbar } from "@/components/selection-toolbar";
 import {
 	Conversation,
 	ConversationContent,
@@ -28,6 +27,7 @@ import {
 	PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
+import { SelectionToolbar } from "@/components/selection-toolbar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { type ChatConfig, extractScore } from "@/lib/spanish-chat";

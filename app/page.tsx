@@ -6,6 +6,7 @@ import { CustomScenarioDialog } from "@/components/custom-scenario-dialog";
 import { DictionaryView } from "@/components/dictionary-view";
 import { ScenarioPicker } from "@/components/scenario-picker";
 import { SettingsSidebar } from "@/components/settings-sidebar";
+import { getEntries } from "@/lib/dictionary";
 import {
 	buildDifficultyConfig,
 	type ChatConfig,
@@ -13,7 +14,6 @@ import {
 	type Scenario,
 	type SettingsState,
 } from "@/lib/spanish-chat";
-import { getEntries } from "@/lib/dictionary";
 
 export default function Page() {
 	const [settings, setSettings] = useState<SettingsState>(DEFAULT_SETTINGS);
@@ -22,7 +22,9 @@ export default function Page() {
 	const [chatKey, setChatKey] = useState(0);
 	const [showDictionary, setShowDictionary] = useState(false);
 	const [dictionaryVersion, setDictionaryVersion] = useState(0);
-	const [dictionaryCount, setDictionaryCount] = useState(() => getEntries().length);
+	const [dictionaryCount, setDictionaryCount] = useState(
+		() => getEntries().length,
+	);
 
 	const updateSettings = (patch: Partial<SettingsState>) =>
 		setSettings((prev) => ({ ...prev, ...patch }));
