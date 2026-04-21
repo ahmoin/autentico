@@ -6,6 +6,13 @@ import { CustomScenarioDialog } from "@/components/custom-scenario-dialog";
 import { DictionaryView } from "@/components/dictionary-view";
 import { ScenarioPicker } from "@/components/scenario-picker";
 import { SettingsSidebar } from "@/components/settings-sidebar";
+import {
+	Drawer,
+	DrawerContent,
+	DrawerHeader,
+	DrawerTitle,
+} from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { getEntries } from "@/lib/dictionary";
 import {
 	buildDifficultyConfig,
@@ -16,11 +23,14 @@ import {
 } from "@/lib/spanish-chat";
 
 export default function Page() {
+	const isMobile = useIsMobile();
+
 	const [settings, setSettings] = useState<SettingsState>(DEFAULT_SETTINGS);
 	const [chatConfig, setChatConfig] = useState<ChatConfig | null>(null);
 	const [customOpen, setCustomOpen] = useState(false);
 	const [chatKey, setChatKey] = useState(0);
 	const [showDictionary, setShowDictionary] = useState(false);
+	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [dictionaryVersion, setDictionaryVersion] = useState(0);
 	const [dictionaryCount, setDictionaryCount] = useState(
 		() => getEntries().length,
@@ -67,6 +77,28 @@ export default function Page() {
 		setDictionaryVersion((v) => v + 1);
 	};
 
+	const sidebarProps = {
+		settings,
+		chatConfig,
+		onUpdate: updateSettings,
+		onRoleSwap: handleRoleSwap,
+		onReset: handleReset,
+		onOpenDictionary: () => setShowDictionary(true),
+		dictionaryCount,
+	};
+
+	const panelContent = showDictionary ? (
+		<DictionaryView
+			onBack={() => {
+				setShowDictionary(false);
+				setDictionaryCount(getEntries().length);
+			}}
+			refreshKey={dictionaryVersion}
+		/>
+	) : (
+		<SettingsSidebar {...sidebarProps} />
+	);
+
 	return (
 		<div className="flex h-svh overflow-hidden">
 			<div className="flex min-w-0 flex-1 flex-col overflow-hidden">
@@ -76,35 +108,40 @@ export default function Page() {
 						config={chatConfig}
 						onBack={() => setChatConfig(null)}
 						onWordSaved={handleWordSaved}
+						onOpenSettings={() => setDrawerOpen(true)}
 					/>
 				) : (
 					<ScenarioPicker
 						onSelect={(s) => startScenario(s)}
 						onCustom={() => setCustomOpen(true)}
+						onOpenSettings={() => setDrawerOpen(true)}
 					/>
 				)}
 			</div>
 
-			{showDictionary ? (
-				<aside className="flex w-64 shrink-0 flex-col overflow-y-auto border-l">
-					<DictionaryView
-						onBack={() => {
-							setShowDictionary(false);
-							setDictionaryCount(getEntries().length);
+			{isMobile ? (
+				<>
+					<Drawer
+						open={drawerOpen}
+						onOpenChange={(open) => {
+							setDrawerOpen(open);
+							if (!open) setShowDictionary(false);
 						}}
-						refreshKey={dictionaryVersion}
-					/>
-				</aside>
+					>
+						<DrawerContent className="max-h-[85vh]">
+							<DrawerHeader>
+								<DrawerTitle>
+									{showDictionary ? "Dictionary" : "Settings"}
+								</DrawerTitle>
+							</DrawerHeader>
+							<div className="overflow-y-auto px-4 pb-8">{panelContent}</div>
+						</DrawerContent>
+					</Drawer>
+				</>
 			) : (
-				<SettingsSidebar
-					settings={settings}
-					chatConfig={chatConfig}
-					onUpdate={updateSettings}
-					onRoleSwap={handleRoleSwap}
-					onReset={handleReset}
-					onOpenDictionary={() => setShowDictionary(true)}
-					dictionaryCount={dictionaryCount}
-				/>
+				<aside className="flex w-64 shrink-0 flex-col overflow-y-auto border-l p-4">
+					{panelContent}
+				</aside>
 			)}
 
 			<CustomScenarioDialog

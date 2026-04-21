@@ -2,7 +2,12 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { ArrowLeftIcon, PlayIcon, SquareIcon } from "lucide-react";
+import {
+	ArrowLeftIcon,
+	PlayIcon,
+	SlidersHorizontalIcon,
+	SquareIcon,
+} from "lucide-react";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -47,10 +52,12 @@ export function ChatContent({
 	config,
 	onBack,
 	onWordSaved,
+	onOpenSettings,
 }: {
 	config: ChatConfig;
 	onBack: () => void;
 	onWordSaved?: () => void;
+	onOpenSettings?: () => void;
 }) {
 	const [completion, setCompletion] = useState(0);
 	const [playingId, setPlayingId] = useState<string | null>(null);
@@ -144,11 +151,24 @@ export function ChatContent({
 							· You: {config.userRole} · AI: {config.aiRole}
 						</span>
 					</div>
-					<span
-						className={cn("text-xs font-medium tabular-nums", completionColor)}
-					>
-						{completion}%
-					</span>
+					<div className="flex items-center gap-2">
+						<span
+							className={cn(
+								"text-xs font-medium tabular-nums",
+								completionColor,
+							)}
+						>
+							{completion}%
+						</span>
+						<Button
+							variant="ghost"
+							size="icon-sm"
+							className="md:hidden"
+							onClick={onOpenSettings}
+						>
+							<SlidersHorizontalIcon className="size-4" />
+						</Button>
+					</div>
 				</div>
 				<div className="space-y-1">
 					<p className="text-[11px] text-muted-foreground">Completion level</p>

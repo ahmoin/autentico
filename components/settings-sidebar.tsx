@@ -38,7 +38,7 @@ export function SettingsSidebar({
 		onUpdate(settingsFromPreset(d, settings.aiStarts));
 
 	return (
-		<aside className="flex w-64 shrink-0 flex-col gap-5 overflow-y-auto border-l p-4">
+		<div className="flex flex-col gap-5">
 			<div className="flex items-center justify-between">
 				<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 					Settings
@@ -188,6 +188,6 @@ export function SettingsSidebar({
 					</Button>
 				</>
 			)}
-		</aside>
+		</div>
 	);
 }

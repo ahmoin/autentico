@@ -1,3 +1,5 @@
+import { SlidersHorizontalIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardDescription,
@@ -9,12 +11,20 @@ import { SCENARIOS, type Scenario } from "@/lib/spanish-chat";
 export function ScenarioPicker({
 	onSelect,
 	onCustom,
+	onOpenSettings,
 }: {
 	onSelect: (s: Scenario) => void;
 	onCustom: () => void;
+	onOpenSettings?: () => void;
 }) {
 	return (
 		<div className="flex flex-1 flex-col">
+			<div className="flex items-center justify-end border-b px-4 py-2 md:hidden">
+				<Button size="icon-sm" variant="ghost" onClick={onOpenSettings}>
+					<SlidersHorizontalIcon className="size-4" />
+				</Button>
+			</div>
+
 			<div className="flex flex-1 flex-col items-center justify-center gap-8 p-8">
 				<div className="w-full max-w-2xl space-y-6">
 					<h2 className="text-3xl font-light text-muted-foreground">
