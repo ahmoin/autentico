@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenIcon } from "lucide-react";
+import { BookOpenIcon, RotateCcwIcon } from "lucide-react";
 import { LabeledSlider } from "@/components/labeled-slider";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -22,6 +22,7 @@ export function SettingsSidebar({
 	chatConfig,
 	onUpdate,
 	onRoleSwap,
+	onReset,
 	onOpenDictionary,
 	dictionaryCount,
 }: {
@@ -29,6 +30,7 @@ export function SettingsSidebar({
 	chatConfig: ChatConfig | null;
 	onUpdate: (patch: Partial<SettingsState>) => void;
 	onRoleSwap: () => void;
+	onReset: () => void;
 	onOpenDictionary: () => void;
 	dictionaryCount: number;
 }) {
@@ -174,6 +176,16 @@ export function SettingsSidebar({
 							Click to swap roles
 						</p>
 					</div>
+					<Separator />
+					<Button
+						size="sm"
+						variant="outline"
+						className="w-full gap-1.5 text-xs"
+						onClick={onReset}
+					>
+						<RotateCcwIcon className="size-3" />
+						Restart conversation
+					</Button>
 				</>
 			)}
 		</aside>

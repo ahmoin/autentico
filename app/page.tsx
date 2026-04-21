@@ -19,6 +19,7 @@ export default function Page() {
 	const [settings, setSettings] = useState<SettingsState>(DEFAULT_SETTINGS);
 	const [chatConfig, setChatConfig] = useState<ChatConfig | null>(null);
 	const [customOpen, setCustomOpen] = useState(false);
+	const [chatKey, setChatKey] = useState(0);
 	const [showDictionary, setShowDictionary] = useState(false);
 	const [dictionaryVersion, setDictionaryVersion] = useState(0);
 	const [dictionaryCount, setDictionaryCount] = useState(() => getEntries().length);
@@ -45,6 +46,20 @@ export default function Page() {
 		);
 	};
 
+	const handleReset = () => {
+		setChatConfig((prev) =>
+			prev
+				? {
+						...prev,
+						difficulty: settings.difficulty,
+						difficultyConfig: buildDifficultyConfig(settings),
+						aiStarts: settings.aiStarts,
+					}
+				: prev,
+		);
+		setChatKey((k) => k + 1);
+	};
+
 	const handleWordSaved = () => {
 		setDictionaryCount(getEntries().length);
 		setDictionaryVersion((v) => v + 1);
@@ -55,7 +70,7 @@ export default function Page() {
 			<div className="flex min-w-0 flex-1 flex-col overflow-hidden">
 				{chatConfig ? (
 					<ChatContent
-						key={`${chatConfig.scenario.id}-${chatConfig.userRole}`}
+						key={`${chatConfig.scenario.id}-${chatConfig.userRole}-${chatKey}`}
 						config={chatConfig}
 						onBack={() => setChatConfig(null)}
 						onWordSaved={handleWordSaved}
@@ -84,6 +99,7 @@ export default function Page() {
 					chatConfig={chatConfig}
 					onUpdate={updateSettings}
 					onRoleSwap={handleRoleSwap}
+					onReset={handleReset}
 					onOpenDictionary={() => setShowDictionary(true)}
 					dictionaryCount={dictionaryCount}
 				/>
